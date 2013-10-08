@@ -1,0 +1,381 @@
+BODY
+{
+    BACKGROUND-COLOR: #FFFFFF;
+    COLOR: #333366;
+    font-family: Sans-Serif;
+	margin: 0px
+}
+H1
+{
+    COLOR: #6666CC;
+    font-family: Sans-Serif;
+    TEXT-TRANSFORM: capitalize
+}
+H2
+{
+    COLOR: #6666CC;
+    font-family: Sans-Serif;
+    TEXT-TRANSFORM: capitalize
+}
+H3
+{
+    COLOR: #6666CC;
+    font-family: Sans-Serif;
+    TEXT-TRANSFORM: capitalize
+}
+
+H4
+{
+    COLOR: #6666CC;
+    font-family: 'Sans-Serif';
+    TEXT-TRANSFORM: capitalize
+}
+
+H5
+{
+    COLOR: #6666CC;
+    font-family: Sans-Serif;
+    TEXT-TRANSFORM: capitalize
+}
+H6
+{
+    COLOR: #6666CC;
+    font-family: Sans-Serif;
+    TEXT-TRANSFORM: capitalize
+}
+TH {
+ color: #6060cc
+}
+
+.centeredError {
+	font-style: normal;
+	font-weight: bold;
+	text-align: center
+}
+
+.tableHeader {
+	font-style: normal;
+	font-weight: bold;
+	font-size: small ;
+	border-color: #8b8b8b;
+	border-style: solid;
+	border-width: 1pt;
+}
+
+.tableHeaderNoBorder {
+	font-style: normal;
+	font-weight: bold;
+	font-size: small ;
+}
+
+.tableCell {
+	font-style: normal;
+	font-size: 10pt ;
+	border-color: #8b8b8b;
+	border-style: solid;
+	border-width: 1pt;
+}
+
+table.infoTable td.blueGroupTableCell {
+	font-style: normal;
+	font-size: 10pt ;
+	border-color: #8b8b8b;
+	border-style: solid;
+	border-width: 1pt;
+	background-color: #0000FF ;
+	color: #FFFFFF ;
+}
+
+table.infoTable td.blueGroupTableCell  a {
+	color: #FFFFFF ;
+}
+
+.tableCellData {
+    font-family: courier;
+	font-style: normal;
+	font-size: 10pt;
+}
+
+.sectionHeader {
+	font-style: normal;
+	font-weight: bold;
+	font-size: medium;
+}
+
+table.sectionHeadingTable {
+	border-width: 0px;
+	background-color: #ffffff;
+}
+
+table.sectionHeadingTable td {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	background-color: #ffffff;
+	font-style: normal;
+	font-size: medium;
+	font-weight: bold ;
+	color: black;	
+}
+
+table.infoTable {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(240, 240, 240);
+}
+table.infoTable th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: none none none none;
+	background-color: rgb(255, 255, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	font-weight: bold;
+	color: black;
+	text-align: left ;
+}
+table.infoTable td {
+	border-width: 1px 1px 1px 1px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(240, 240, 240);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: black;	
+}
+
+table.infoTableAlert {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(240, 0, 0);
+}
+table.infoTableAlert th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: none none none none;
+	background-color: rgb(255, 255, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	font-weight: bold;
+	color: white;
+	text-align: left ;
+}
+table.infoTableAlert td {
+	border-width: 1px 1px 1px 1px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(240, 0, 0);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: white;	
+}
+
+table.infoTableNoBorder {
+	border-width: 0px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(240, 240, 240);
+}
+table.infoTableNoBorder th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: none none none none;
+	background-color: rgb(255, 255, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	font-weight: bold;
+	color: black;
+	text-align: left ;
+}
+table.infoTableNoBorder td {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(240, 240, 240);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: black;	
+}
+
+
+table.globalPropertiesTable {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(220, 220, 255);
+}
+table.globalPropertiesTable th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: none none none none;
+	background-color: rgb(255, 255, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	font-weight: bold;
+	color: black;
+	text-align: left ;
+}
+table.globalPropertiesTable td {
+	border-width: 1px 1px 1px 1px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(220, 220, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: black;	
+}
+
+table.mergedPropertiesTable {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(255, 220, 220);
+}
+table.mergedPropertiesTable th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: none none none none;
+	background-color: rgb(255, 255, 255);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: medium;
+	font-weight: bold;
+	color: black;
+	text-align: center ;
+}
+table.mergedPropertiesTable td {
+	border-width: 1px 1px 1px 1px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(255, 220, 220);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: black;	
+}
+
+td.sectionCell {
+	font-weight: bold;
+	font-size: large ;
+	border-color: #8b8b8b;
+	border-style: none;
+	border-width: 0px;
+	background-color: #ffffff;
+}
+
+.sectionCell {
+	font-style: bold;
+	font-size: medium ;
+	border-color: #8b8b8b;
+	border-style: none;
+	border-width: 0px;
+	background-color: #ffffff;
+}
+
+table.loginTable {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: solid solid solid solid;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: rgb(240, 240, 240);
+}
+table.loginTable th {
+	border-width: 0px;
+	padding: 2px 2px 2px 2px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(240, 240, 240);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	font-weight: bold;
+	color: black;
+	text-align: left ;
+}
+table.loginTable td {
+	border-width: 0px;
+	padding: 5px;
+	border-style: solid solid solid solid;
+	border-color: black black black black;
+	background-color: rgb(240, 240, 240);
+	-moz-border-radius: 0px 0px 0px 0px;
+	font-style: normal;
+	font-size: small;
+	color: black;	
+}
+
+.dataEntryTable {
+	border-color: black;
+	border-width: 1pt;
+	border-style: solid;
+	background-color: #f0f0f0
+}
+
+.dataEntryField {
+	font-style: normal;
+	font-weight: bold;
+	font-size: small;
+}
+
+.menuItem {
+	font-style: normal;
+	font-weight: bold;
+	font-size: small;
+	color: blue;
+}
+
+.menuTable {
+	background-color: silver
+}
+
+.version {
+	font-style: normal;
+	font-weight: bold;
+	font-size: small;
+	color: black;
+}
+
+.smallText {
+	font-style: normal;
+	font-size: small;
+	color: black;
+}
+
+.errorMsg {
+	font-style: normal;
+	font-weight: bold;
+	font-size: medium;
+	color: red;
+}
+
+.bannerMsg {
+	font-style: normal;
+	font-weight: bold;
+	font-size: medium;
+	color: black;
+}
