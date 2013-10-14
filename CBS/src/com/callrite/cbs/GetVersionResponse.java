@@ -1,14 +1,3 @@
-/*
- * $Id: GetVersionResponse.java 3733 2011-11-11 19:35:37Z jliang $
- * 
- * Created on July 11, 2012
- *
- * Copyright © VoiceRite, Inc. 2012.  All Rights reserved.
- * The source code for this program is not published or otherwise
- * divested of its trade secrets, irrespective of what has been
- * deposited with the U.S. Copyright office.
- *
- */
 package com.callrite.cbs;
 
 /**
