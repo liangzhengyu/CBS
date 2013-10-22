@@ -2,21 +2,23 @@ package com.callrite.cbs;
 
 import org.apache.log4j.Logger;
 
-import com.callrite.cbs.callactivity.VIPCallActivityEvent;
-import com.callrite.cbs.event.VIPEventManager;
+import com.callrite.cbs.callactivity.CBCCallActivityEvent;
+import com.callrite.cbs.event.CBSEventManager;
 import com.callrite.cbs.stats.StatisticsTracker;
+import com.callrite.cbs.telephony.TelephonyRequest;
+import com.callrite.cbs.telephony.TelephonyResponse;
 
 /**
  * 
- * Provides VIP core functions
+ * Provides CBSHelper core functions
  * @author JLiang
  *
  */
-public class VIP {
+public class CBSHelper {
     /**
      * Logger
      */
-    private static Logger logger = Logger.getLogger("com.callrite.cbs.VIP") ;
+    private static Logger logger = Logger.getLogger("com.callrite.cbs.CBSHelper") ;
     
     /**
      * Geneate return code
@@ -56,8 +58,7 @@ public class VIP {
      * @return null if no alternative server is available
      */
     private String getTelephonyAlternativeServer() {
-        // TODO Auto-generated method stub
-        return null;
+       return null;
     }
     
     /**
@@ -81,7 +82,7 @@ public class VIP {
         long startTime = System.currentTimeMillis() ;
         
         try {
-            return generateReturnCode(ReturnCode.SUCCESS, "" );
+            return generateSucessfulReturnCode();
         }  finally {
            logger.debug("Request took [" + (System.currentTimeMillis() - startTime) + " ms]") ;            
         }
@@ -92,16 +93,9 @@ public class VIP {
      * @param request
      * @return
      */
-    public HandleCallResponse handleCall(CallRequest request) {
+    public void handleCallActivity(TelephonyRequest request, TelephonyResponse response) {
         //send call to events
-        VIPCallActivityEvent event = new VIPCallActivityEvent(request);
-        VIPEventManager.getInstance().fireVIPEvent(event);
-        
-        HandleCallResponse response = new HandleCallResponse();
-        response.setReturnCode(generateSucessfulReturnCode());
-        if ( event.getVIPEventResponseData() != null ) {
-            response.setCallResponse((CallResponse)event.getVIPEventResponseData());
-        }
-        return response;
+        CBCCallActivityEvent event = new CBCCallActivityEvent(request, response);
+        CBSEventManager.getInstance().fireCBSEvent(event);
     }
 }

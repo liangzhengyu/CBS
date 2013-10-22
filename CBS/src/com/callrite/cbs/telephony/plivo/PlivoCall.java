@@ -1,13 +1,16 @@
-package com.callrite.cbs;
+package com.callrite.cbs.telephony.plivo;
 
 import java.io.Serializable;
 
 /**
- * This class defines the incoming call request from Verizon
+ * This class defines the incoming call request
  * @author JLiang
  *
  */
-public class CallRequest implements Serializable {
+public class PlivoCall implements Serializable {
+    /** parameter names **/
+    public final static String CALL_ID = "CallUUID";
+    
     /**
      * Default serial version UID
      */
@@ -35,7 +38,7 @@ public class CallRequest implements Serializable {
     private String source = SOURCE_PHONE;
     /** available sources **/
     public final static String SOURCE_PHONE = "phone";
-    public final static String SOURCE_VIP = "VIP";
+    public final static String SOURCE_VIP = "CBSHelper";
     
     /** Call Status **/
     private int status = STATUS_NOT_STARTED;
@@ -77,19 +80,16 @@ public class CallRequest implements Serializable {
     /** Status associated Leg ID **/
     private String statusAssociatedLegID;
     
-    /** The unique identifier which identify the outbound request by VIP **/
+    /** The unique identifier which identify the outbound request by CBSHelper **/
     private String outboundRequestID;
     
     /** supplemental data, for implementation specific data. For example, plivo "schedulehangupid" **/
     private String[] supplementalData;
-
-    /** true if need to wait for response **/
-    private boolean waitingForResponse = false;
     
     /**
      * Constructor
      */
-    public CallRequest() {
+    public PlivoCall() {
         super();
         timestamp = System.currentTimeMillis();
     }
@@ -274,20 +274,6 @@ public class CallRequest implements Serializable {
      */
     public void setOutboundRequestID(String outboundRequestID) {
         this.outboundRequestID = outboundRequestID;
-    }
-
-    /**
-     * @return the waitingForResponse
-     */
-    public boolean isWaitingForResponse() {
-        return waitingForResponse;
-    }
-
-    /**
-     * @param waitingForResponse the waitingForResponse to set
-     */
-    public void setWaitingForResponse(boolean waitingForResponse) {
-        this.waitingForResponse = waitingForResponse;
     }
 
     /**

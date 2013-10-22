@@ -5,7 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
-import com.callrite.cbs.event.VIPEventManager;
+import com.callrite.cbs.event.CBSEventManager;
 import com.callrite.cbs.stats.StatisticsTracker;
 
 /**
@@ -27,7 +27,7 @@ public class Initializer  implements ServletContextListener {
         logger.debug("At end") ;
 
         //destroy event queues
-        VIPEventManager.getInstance().terminateQueues();
+        CBSEventManager.getInstance().terminateQueues();
 
         StatisticsTracker.getInstance().terminate() ;
         StatisticsTracker.getInstance().interrupt() ;
@@ -43,7 +43,7 @@ public class Initializer  implements ServletContextListener {
         StatisticsTracker.getInstance() ;
         
         //Initialize event queues
-        VIPEventManager.getInstance().initQueues();
+        CBSEventManager.getInstance().initQueues();
 
     }
 

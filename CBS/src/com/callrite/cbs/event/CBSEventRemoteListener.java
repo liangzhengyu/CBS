@@ -6,19 +6,19 @@ package com.callrite.cbs.event;
  * @author JLiang
  *
  */
-public class VIPEventRemoteListener implements VIPEventListener {
+public class CBSEventRemoteListener implements CBSEventListener {
     // web serivce URL
     private String[] webserviceURLs;
     
-    public VIPEventRemoteListener(String[] webserviceURLs) {
+    public CBSEventRemoteListener(String[] webserviceURLs) {
         super();
         this.webserviceURLs = webserviceURLs;
     }
 
     /* (non-Javadoc)
-     * @see com.callrite.cbs.event.VIPEventListener#handleEvent(com.callrite.cbs.event.VIPEvent)
+     * @see com.callrite.cbs.event.CBSEventListener#handleEvent(com.callrite.cbs.event.CBSEvent)
      */
-    public void handleEvent(VIPEvent event) {
+    public void handleEvent(CBSEvent event) {
         // TODO Auto-generated method stub
         
     }

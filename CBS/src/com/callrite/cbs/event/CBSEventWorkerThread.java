@@ -5,30 +5,30 @@ import org.apache.log4j.Logger;
 import com.callrite.cbs.util.VRThread;
 
 /**
- * VIP Event worker Thread
+ * CBSHelper Event worker Thread
  * @author JLiang
  *
  */
-public class VIPEventWorkerThread extends VRThread {
+public class CBSEventWorkerThread extends VRThread {
     /** The event type that the worker thread is working on **/
     private int eventType;
     /** thread identifier **/
     private int threadID;
-    private VIPEventListener[] vipEventListeners;
+    private CBSEventListener[] cbsEventListeners;
     
     /**
      * Logger
      */
-    private static Logger logger = Logger.getLogger(VIPEventWorkerThread.class);
+    private static Logger logger = Logger.getLogger(CBSEventWorkerThread.class);
     
     /**
      * Consturctor
      */
-    public VIPEventWorkerThread(int eventType, int threadID, VIPEventListener[] vipEventListeners) {
+    public CBSEventWorkerThread(int eventType, int threadID, CBSEventListener[] cbsEventListeners) {
         super();
         this.eventType = eventType;
         this.threadID = threadID;
-        this.vipEventListeners = vipEventListeners;
+        this.cbsEventListeners = cbsEventListeners;
     }
 
     /* (non-Javadoc)
@@ -39,15 +39,13 @@ public class VIPEventWorkerThread extends VRThread {
         logger.info("Event worker [" + threadID + "] for event type [" + eventType + "] started" );
         
         while ( !terminated() ) {
-            VIPEvent event = VIPEventManager.getInstance().consumeVIPEvent(eventType);
+            CBSEvent event = CBSEventManager.getInstance().consumeCBSEvent(eventType);
             logger.debug("Event worker [" + threadID + "] for event type [" + eventType + "] handling event [" + event + "]");
-            for ( VIPEventListener listener : getVIPEventListner() ) {
+            for ( CBSEventListener listener : getCBSEventListner() ) {
                 listener.handleEvent(event);
-                if ( event.getVIPEventResponseData() != null ) {
-                    //notify event is handled
-                    VIPEventManager.getInstance().notifyVIPEventHandled(event);
-                }
             }
+            //notify event is handled
+            CBSEventManager.getInstance().notifyCBSEventHandled(event);
             logger.debug("Event worker [" + threadID + "] for event type [" + eventType + "] event [" + event + "] handled");
         }
         
@@ -55,18 +53,18 @@ public class VIPEventWorkerThread extends VRThread {
     }
     
     /**
-     * Set VIP Event Listener for this thread
-     * @param vipEventListeners
+     * Set CBSHelper Event Listener for this thread
+     * @param cbsEventListeners
      */
-    public synchronized void setVipEventListeners(VIPEventListener[] vipEventListeners) {
-        this.vipEventListeners = vipEventListeners;
+    public synchronized void setCBSEventListeners(CBSEventListener[] cbsEventListeners) {
+        this.cbsEventListeners = cbsEventListeners;
     }
     
     /**
-     * Get VIP event listener
+     * Get CBSHelper event listener
      * @return
      */
-    public synchronized VIPEventListener[] getVIPEventListner() {
-        return vipEventListeners;
+    public synchronized CBSEventListener[] getCBSEventListner() {
+        return cbsEventListeners;
     }
 }

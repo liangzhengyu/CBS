@@ -10,12 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.callrite.cbs.CallRequest;
-import com.callrite.cbs.HandleCallResponse;
+import com.callrite.cbs.CBSHelper;
 import com.callrite.cbs.ReturnCode;
-import com.callrite.cbs.VIP;
+import com.callrite.cbs.exception.CBSException;
 import com.callrite.cbs.exception.NotFoundException;
-import com.callrite.cbs.exception.VIPException;
 import com.callrite.cbs.telephony.TelephonyRequest;
 import com.callrite.cbs.telephony.TelephonyResponse;
 import com.callrite.cbs.telephony.TelephonyService;
@@ -25,7 +23,7 @@ import com.callrite.cbs.telephony.TelephonyServiceFactory;
  * 
  * Handle the call requests via HTTP requests and return the responses.  The end point would be as follows:
  * 
- *     http://<host>/VIP/telephony/demo/plivo
+ *     http://<host>/CBS/telephony/[source]/[protocol]/[action]/[callflow]/[version]
  *     
  * The above example shows a call request from demo system with plivo service.
  * 
@@ -111,7 +109,6 @@ public class TelephonyServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
     private void doWork(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         /*
          * Get and parse the file info
@@ -137,8 +134,8 @@ public class TelephonyServlet extends HttpServlet {
             logger.debug("SOURCE: " + source) ;
             
             //authenticate telephony request
-            VIP vipService = new VIP();
-            ReturnCode returnCode = vipService.locateTelephonyService(source, request.getRemoteAddr(), "", "");
+            CBSHelper cbsService = new CBSHelper();
+            ReturnCode returnCode = cbsService.locateTelephonyService(source, request.getRemoteAddr(), "", "");
             //handle return code 
             switch (returnCode.getResult()) {
                 case ReturnCode.SUCCESS:
@@ -174,21 +171,30 @@ public class TelephonyServlet extends HttpServlet {
                 try {
                     //get call service handler
                     TelephonyService service = TelephonyServiceFactory.createTelephonyService(protocol);
-                    TelephonyRequest telephonyRequest = new TelephonyRequest( TelephonyRequest.HTTP, protocol, source, request.getRemoteAddr(), request);
-                    TelephonyResponse telephonyResponse = new TelephonyResponse(response);
-                    CallRequest callRequest = service.processRequest( telephonyRequest, telephonyResponse );
+                    TelephonyRequest telephonyRequest = new TelephonyRequest( TelephonyRequest.HTTP, protocol, source, request.getRemoteAddr(),
+                            args.length>2?args[2]:null, args.length>3?args[3]:null, args.length>4?args[4]:null, 
+                            request);
+                    TelephonyResponse telephonyResponse = service.process(telephonyRequest);
                     
-                    VIP vip = new VIP();
-                    //call VIP to handle the call request
-                    HandleCallResponse callResponse = vip.handleCall(callRequest);
+                    //call CBSHelper to handle the call request
+                    cbsService.handleCallActivity(telephonyRequest, telephonyResponse);
                     
-                    service.processResponse(telephonyRequest, telephonyResponse, callRequest, callResponse.getCallResponse());
+                    if ( telephonyResponse.getResult() == TelephonyResponse.SUCCESS ) {
+                        //send back response
+                        logger.debug(String.format("Send back result [%s]", telephonyResponse.getResultData().toString()));
+                        response.getOutputStream().println(telephonyResponse.getResultData().toString());
+                    } else if ( telephonyResponse.getResult() == TelephonyResponse.SUCCESS_NO_ACTION ) {
+                        logger.debug("No action required");
+                    } else {
+                        logger.error(String.format("Failed to process with error [%d] and description [%s]", telephonyResponse.getResult(), telephonyResponse.getResultText()));
+                        internalError(response) ;
+                    }
                     
                 } catch (NotFoundException exp) {
                     logger.warn(exp.getMessage()) ;            
                     notFound(response) ;
                     return ;
-                } catch (VIPException exp) {
+                } catch (CBSException exp) {
                     logger.warn(exp.getMessage()) ;            
                     internalError(response) ;
                     return ;

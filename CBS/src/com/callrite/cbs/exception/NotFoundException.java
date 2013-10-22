@@ -1,6 +1,6 @@
 package com.callrite.cbs.exception;
 
-public class NotFoundException extends VIPException {
+public class NotFoundException extends CBSException {
     
     /**
      * 

@@ -10,12 +10,12 @@ import org.apache.log4j.Logger;
  * This is a stand WebService that all CBS products will expose in order to allow external parties
  * to get the product's version info
  */
-public class VIPVersion
+public class CBSVersion
 {
     /**
      * Logger
      */
-    private static Logger logger = Logger.getLogger( VIPVersion.class );
+    private static Logger logger = Logger.getLogger( CBSVersion.class );
             
 
     /**
@@ -28,7 +28,7 @@ public class VIPVersion
         GetVersionResponse response = new GetVersionResponse() ;
         
         try {
-            ResourceBundle properties = ResourceBundle.getBundle("vip-version") ;
+            ResourceBundle properties = ResourceBundle.getBundle("cbs-version") ;
             
             String version = properties.getString("Version") ;
             if (version == null || version.length() <= 0) {

@@ -1,23 +1,23 @@
 package com.callrite.cbs.exception;
 
 /**
- * The base exception for VIP project
+ * The base exception for CBSHelper project
  * @author JLiang
  *
  */
-public class VIPException extends Exception {
+public class CBSException extends Exception {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1;
 
-    public VIPException()
+    public CBSException()
     {
         super() ;
     }
     
-    public VIPException(String msg)
+    public CBSException(String msg)
     {
         super(msg) ;
     }

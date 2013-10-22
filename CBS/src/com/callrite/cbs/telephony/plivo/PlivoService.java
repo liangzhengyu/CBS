@@ -1,29 +1,23 @@
 package com.callrite.cbs.telephony.plivo;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.LRUMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.callrite.cbs.CallRequest;
-import com.callrite.cbs.CallResponse;
-import com.callrite.cbs.exception.VIPException;
+import com.callrite.cbs.exception.CBSException;
 import com.callrite.cbs.telephony.TelephonyRequest;
 import com.callrite.cbs.telephony.TelephonyResponse;
 import com.callrite.cbs.telephony.TelephonyService;
+import com.callrite.cbs.telephony.plivo.callflow.ICallFlowHandler;
 import com.callrite.cbs.util.Config;
 
 public class PlivoService implements TelephonyService {
@@ -35,136 +29,128 @@ public class PlivoService implements TelephonyService {
     /**
      * For POC only, save today's telephony request
      */
-    private static Hashtable<String,Vector<CallRequest>> todayCalls = new Hashtable<String,Vector<CallRequest>>();
+    private static Hashtable<String,Vector<PlivoCall>> todayCalls = new Hashtable<String,Vector<PlivoCall>>();
     private static String todayTimestamp = null;
     
-    public CallRequest processRequest(TelephonyRequest request,
-            TelephonyResponse response) throws VIPException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request.getOriginalRequest();
-        logger.debug("Process Request");
-        
-        //print out parameters
-        CallRequest callRequest = new CallRequest();
-        Enumeration parameterNames = httpRequest.getParameterNames();
-        Hashtable<String, String> legIDs = new Hashtable<String, String>();
-        String associatedLegName = null;
-        while ( parameterNames.hasMoreElements() ) {
-            String name = (String) parameterNames.nextElement();
-            String value = httpRequest.getParameter(name);
-            logger.debug("Parameter [" + name + "] value is [" + httpRequest.getParameter(name) + "]");
-            if ( name == null ) {
-                continue;
-            }
-            if ( name.equalsIgnoreCase("CallUUID") ) {
-                callRequest.setCallID(value);
-            } else if ( name.equalsIgnoreCase("CallerName") ) {
-                callRequest.setCallerName(value);
-            } else if ( name.equalsIgnoreCase("To") ) {
-                callRequest.setDNIS(value);
-            } else if ( name.equalsIgnoreCase("From") ) {
-                callRequest.setANI(value);
-            } else if ( name.equalsIgnoreCase("Direction") ) {
-                if ( value != null && value.equalsIgnoreCase("outbound") ) {
-                    callRequest.setDirection(CallRequest.DIRECTION_OUTBOUND);
-                } else {
-                    callRequest.setDirection(CallRequest.DIRECTION_INBOUND);
-                }
-            } else if ( name.equalsIgnoreCase("CallStatus") ) {
-                if ( value.equalsIgnoreCase("ringing") ) {
-                    callRequest.setStatus(CallRequest.STATUS_STARTED);
-                    callRequest.setWaitingForResponse(true);
-                } else if ( value.equalsIgnoreCase("in-progress") ) {
-                    callRequest.setStatus(CallRequest.STATUS_ACTIVE );
-                }  else if ( value.equalsIgnoreCase("completed") ) {
-                    callRequest.setStatus(CallRequest.STATUS_COMPLETED );
-                }  
-            } else if ( Pattern.matches("Dial[a-zA-Z]LegUUID", name) ) {
-                legIDs.put(name, value);
-            } else if ( Pattern.matches("Dial[a-zA-Z]LegStatus", name) ) {
-                associatedLegName = name;
-                if ( value.equalsIgnoreCase("hangup") ) {
-                    callRequest.setStatus(CallRequest.STATUS_HANGUP);
-                    if ( name.equalsIgnoreCase("DialALegStatus")) {
-                        callRequest.setDisposition(CallRequest.DISPOSITION_CALLER_HANGUP);
-                    } else {
-                        callRequest.setDisposition(CallRequest.DISPOSITION_CALLEE_HANGUP);
-                    }
-                } else if ( value.equalsIgnoreCase("answer") ) {
-                    callRequest.setStatus(CallRequest.STATUS_ACTIVE );
-                }  
-            }
-        }
-        if ( legIDs.size() > 0 ) {
-            Collection<String> ids = legIDs.values();
-            String[] idsArr = ids.toArray(new String[ids.size()]);
-            Arrays.sort(idsArr);
-            callRequest.setLegIDs(idsArr);
-            if ( StringUtils.isEmpty(associatedLegName) == false && legIDs.containsKey(associatedLegName) ) {
-                callRequest.setStatusAssociatedLegID(legIDs.get(associatedLegName));
-            }
+    /**
+     * Call Map
+     */
+    private static LRUMap callMap = new LRUMap(Config.getInstance().getSetting("Maximum.Calls", 100));
+    
+    /* (non-Javadoc)
+     * @see com.callrite.cbs.telephony.TelephonyService#process(com.callrite.cbs.telephony.TelephonyRequest)
+     */
+    public TelephonyResponse process(TelephonyRequest request)
+            throws CBSException {
+        String callID = getCallID(request);
+        if ( StringUtils.isEmpty(callID) ) {
+            logger.error("Call ID is empty");
+            return new PlivoCallResponse(PlivoCallResponse.CALL_ID_MISSING, "Call ID is empty");
         }
         
-        if ( callRequest.getCallID() != null ) {
+        PlivoCall call = null;
+        if ( request.getAction().compareTo(TelephonyRequest.INCOMING) != 0 ) {
+            if (! callMap.containsKey(callID) ) {
+                logger.error(String.format("Call ID [%s] not valid", callID));
+                return new PlivoCallResponse(PlivoCallResponse.CALL_ID_INVALID, String.format("Call ID [%s] not valid", callID));
+            }
+        } else {
+            processCallFlow(request); //determine call flow
+        }
+        
+        ICallFlowHandler handler = getCallFlowHandler(request);
+        if ( handler == null ) {
+            logger.error(String.format("No handler for Call flow [%s] action [%s]", request.getCallFlow(), request.getAction()));
+            return new PlivoCallResponse(PlivoCallResponse.CALL_FLOW_INVALID, String.format("No handler for Call flow [%s] action [%s]", request.getCallFlow(), request.getAction()));
+        }
+        PlivoCallResponse response = handler.process(call, request);
+                
+        if ( response.getCall() != null ) {
             synchronized(todayCalls) {
-                if ( todayCalls.containsKey(callRequest.getCallID() ) ) {
-                    todayCalls.get(callRequest.getCallID()).add(callRequest);
+                if ( todayCalls.containsKey(response.getCall().getCallID()) ) {
+                    todayCalls.get(response.getCall().getCallID()).add(response.getCall());
                 } else {
                     SimpleDateFormat sm = new SimpleDateFormat("MMddyy");
-                    if ( todayTimestamp == null || todayTimestamp.equals(sm.format(new Date(callRequest.getTimestamp()))) == false ) {
-                        todayTimestamp = sm.format(new Date(callRequest.getTimestamp()));
+                    if ( todayTimestamp == null || todayTimestamp.equals(sm.format(new Date(response.getCall().getTimestamp()))) == false ) {
+                        todayTimestamp = sm.format(new Date(response.getCall().getTimestamp()));
                         todayCalls.clear();
                     }   
-                    Vector<CallRequest> callList = new Vector<CallRequest>();
-                    callList.add(callRequest);
-                    todayCalls.put(callRequest.getCallID(), callList);
+                    Vector<PlivoCall> callList = new Vector<PlivoCall>();
+                    callList.add(response.getCall());
+                    todayCalls.put(response.getCall().getCallID(), callList);
                 }    
             }    
         }
         
-        return callRequest;
+        return response;
+        
     }
 
     /**
-     * Send out Plivo RESTXML response
+     * Determine call flow here
+     * @param request
      */
-    public void processResponse(TelephonyRequest request, TelephonyResponse response, CallRequest callRequest, CallResponse callResponse)
-            throws VIPException {
-        logger.debug("Process Response");
-        HttpServletResponse httpResponse = (HttpServletResponse) response.getOriginalResponse();
-        
-        try {
-            StringBuffer responseBuffer = new StringBuffer();
-            responseBuffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-            responseBuffer.append("<Response>\n");
-            if ( callRequest.getStatus() == CallRequest.STATUS_STARTED ) {
-                responseBuffer.append(Config.getInstance(Config.TELEPHONY).getSetting("PlivoPOCResponse", "")+"\n") ;
-            }
-            responseBuffer.append("</Response>");
-            logger.debug("Response: " + responseBuffer.toString());
-            httpResponse.getOutputStream().println(responseBuffer.toString());
-        } catch (IOException e) {
-            throw new VIPException(e.toString());
-        }
-        
+    private void processCallFlow(TelephonyRequest request) {
+        // TODO: code to process call flow
     }
 
+    /**
+     * Get call flow handler
+     * @param request
+     * @return
+     */
+    private ICallFlowHandler getCallFlowHandler(TelephonyRequest request) {
+        String handlerClassName = String.format("com.callrite.cbs.telephony.plivo.callflow.%s%s.%sHandler", request.getCallFlow(), request.getVersion(), request.getAction());
+        
+        Object obj;
+        try {
+            obj = Class.forName(handlerClassName).newInstance();
+            if ( obj instanceof ICallFlowHandler) {
+                return (ICallFlowHandler) obj;
+            }
+            logger.error(String.format("Class [%s] is not a handler", handlerClassName));
+
+        } catch (InstantiationException e) {
+            logger.error(String.format("Failed to create call flow handler class [%s]", handlerClassName), e);
+        } catch (IllegalAccessException e) {
+            logger.error(String.format("Failed to create call flow handler class [%s]", handlerClassName), e);
+        } catch (ClassNotFoundException e) {
+            logger.error(String.format("Failed to create call flow handler class [%s]", handlerClassName), e);
+        }
+        return null;
+    }
+
+    /**
+     * Get call ID
+     * @param request
+     * @return
+     * @throws CBSException
+     */
+    private String getCallID(TelephonyRequest request) throws CBSException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request.getOriginalRequest();
+        if ( httpRequest.getParameterMap().containsKey(PlivoCall.CALL_ID) ) {
+            return httpRequest.getParameter(PlivoCall.CALL_ID);
+        }
+        return null;
+    }
+    
     /**
      * Get today call requests
      * @return
      */
-    public static Vector<CallRequest[]> getTodayCalls() {
-        Vector<CallRequest[]> calls = new Vector<CallRequest[]>();
+    public static Vector<PlivoCall[]> getTodayCalls() {
+        Vector<PlivoCall[]> calls = new Vector<PlivoCall[]>();
         
         synchronized(todayCalls) {
-            for ( Vector<CallRequest> requests: todayCalls.values() ) {
-                CallRequest[] retRequests = requests.toArray(new CallRequest[requests.size()]);
+            for ( Vector<PlivoCall> requests: todayCalls.values() ) {
+                PlivoCall[] retRequests = requests.toArray(new PlivoCall[requests.size()]);
                 calls.add(retRequests);
             }
         }
         
         //sort by time
-        Collections.sort(calls, new Comparator<CallRequest[]>() {
-            public int compare(CallRequest[] request1, CallRequest[] request2) {
+        Collections.sort(calls, new Comparator<PlivoCall[]>() {
+            public int compare(PlivoCall[] request1, PlivoCall[] request2) {
                 if ( request1[0].getTimestamp() > request2[0].getTimestamp() ) {
                     return -1;
                 } else if ( request1[0].getTimestamp() < request2[0].getTimestamp() ) {

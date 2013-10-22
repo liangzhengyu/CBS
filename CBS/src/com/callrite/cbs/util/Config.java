@@ -48,7 +48,7 @@ public class Config {
     private String baseName = VIP;
     
     /** available base names **/
-    public final static String VIP = "VIP";
+    public final static String VIP = "CBSHelper";
     public final static String TELEPHONY = "Telephony";
     
     /**
@@ -95,7 +95,7 @@ public class Config {
                 lastReloadTime = System.currentTimeMillis() ;
                 
             } catch (MissingResourceException e) {
-                logger.error("Couldn't find VIP.properties") ;
+                logger.error("Couldn't find CBSHelper.properties") ;
             } 
         }
     }

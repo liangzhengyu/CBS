@@ -6,8 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.callrite.cbs.callactivity.VIPCallActivityDefaultListener;
-import com.callrite.cbs.callactivity.VIPCallActivityEvent;
+import com.callrite.cbs.callactivity.CBSCallActivityDefaultListener;
 import com.callrite.cbs.util.Config;
 
 /**
@@ -15,30 +14,30 @@ import com.callrite.cbs.util.Config;
  * @author JLiang
  *
  */
-public class VIPEventManager {
+public class CBSEventManager {
     /** Singletone Instance **/
-    private static VIPEventManager instance = new VIPEventManager();
+    private static CBSEventManager instance = new CBSEventManager();
     
     /** event queues **/
-    private BlockingQueue<VIPEvent> callActivityEventQueue; 
-    private VIPEventWorkerThread[] callActivityWorkers;
+    private BlockingQueue<CBSEvent> callActivityEventQueue; 
+    private CBSEventWorkerThread[] callActivityWorkers;
     
     /**
      * Logger
      */
-    private static Logger logger = Logger.getLogger(VIPEventManager.class);
+    private static Logger logger = Logger.getLogger(CBSEventManager.class);
     
     /**
      * private constructor
      */
-    private void VIPEventManager() {
+    private void CBSEventManager() {
     }
     
     /**
      * 
      * @return
      */
-    public static VIPEventManager getInstance() {
+    public static CBSEventManager getInstance() {
         return instance;
     }
     
@@ -47,15 +46,15 @@ public class VIPEventManager {
      */
     public void initQueues() {
         terminateQueues();
-        callActivityEventQueue = new LinkedBlockingQueue<VIPEvent>( Config.getInstance().getSetting( "CallActivityQueueCapacity", 5000 ) );
+        callActivityEventQueue = new LinkedBlockingQueue<CBSEvent>( Config.getInstance().getSetting( "CallActivityQueueCapacity", 5000 ) );
         //start worker thread for call activity 
         int numberOfCallActivityWorker = Config.getInstance().getSetting( "CallActivityWorkerNum", 5 );
-        callActivityWorkers = new VIPEventWorkerThread[numberOfCallActivityWorker];
+        callActivityWorkers = new CBSEventWorkerThread[numberOfCallActivityWorker];
         logger.info("Starting [" + numberOfCallActivityWorker + "] worker threads to handle call activity event");
-        VIPEventListener[] callActivityListeners = new VIPEventListener[1];
-        callActivityListeners[0] = new VIPCallActivityDefaultListener();
+        CBSEventListener[] callActivityListeners = new CBSEventListener[1];
+        callActivityListeners[0] = new CBSCallActivityDefaultListener();
         for ( int i=0; i<numberOfCallActivityWorker; i++) {
-            callActivityWorkers[i] = new VIPEventWorkerThread(VIPEvent.CALL_ACTIVITY, i+1, callActivityListeners);
+            callActivityWorkers[i] = new CBSEventWorkerThread(CBSEvent.CALL_ACTIVITY, i+1, callActivityListeners);
             callActivityWorkers[i].start();
         }
         
@@ -67,23 +66,23 @@ public class VIPEventManager {
     public void terminateQueues() {
         //terminate call activity workers
         if ( callActivityWorkers != null ) {
-            for ( VIPEventWorkerThread worker: callActivityWorkers ) {
+            for ( CBSEventWorkerThread worker: callActivityWorkers ) {
                 worker.terminate();
             }
         }
     }
     
     /**
-     * fire VIP event
+     * fire CBSHelper event
      * @param event
      */
-    public void fireVIPEvent(VIPEvent event) {
+    public void fireCBSEvent(CBSEvent event) {
         //add to the queue
         logger.debug( "Add event to queue [" + event.getEventType() + "] ");
         boolean eventAdded = false;
-        if ( event.getEventType() == VIPEvent.CALL_ACTIVITY ) {
+        if ( event.getEventType() == CBSEvent.CALL_ACTIVITY ) {
             try {
-                eventAdded = callActivityEventQueue.offer(event, (long)event.waitingForEventResponse(), TimeUnit.MILLISECONDS );
+                eventAdded = callActivityEventQueue.offer(event, 1000, TimeUnit.MILLISECONDS );
             } catch (InterruptedException e) {
             }
                     
@@ -93,22 +92,14 @@ public class VIPEventManager {
         } else {
             logger.error("No worker for this type of event [" + event.getEventType() + "] ");
         }
-        if (eventAdded && event.waitingForEventResponse() > 0 ) {
-            synchronized(event) {
-                try {
-                    event.wait(event.waitingForEventResponse());
-                } catch (InterruptedException e) {
-                }
-            }
-        }
     }
     
     /**
-     * Consume VIP event
+     * Consume CBSHelper event
      * @param event
      */
-    public VIPEvent consumeVIPEvent(int eventType) {
-        if ( eventType == VIPEvent.CALL_ACTIVITY ) {
+    public CBSEvent consumeCBSEvent(int eventType) {
+        if ( eventType == CBSEvent.CALL_ACTIVITY ) {
             try {
                 return callActivityEventQueue.take();
             } catch (InterruptedException e) {
@@ -127,7 +118,7 @@ public class VIPEventManager {
      * Notify when the event is handled
      * @param event
      */
-    public void notifyVIPEventHandled(VIPEvent event) {
+    public void notifyCBSEventHandled(CBSEvent event) {
         synchronized(event) {
             event.notifyAll();
         }

@@ -113,81 +113,80 @@ import="java.util.*,com.callrite.cbs.web.*,com.callrite.cbs.*,com.callrite.cbs.u
 						<TD class=tableHeader>Disposition</TD>
 					</TR>
 					<%
-						for (int x=0; x<calls.size(); x++) {
-						    CallRequest[] callRequests = (CallRequest[]) calls.get(x) ;
-						    
-						    for(int y=0; y<callRequests.length; y++) {
-						    	CallRequest call = callRequests[y];	
-						    	String callID = call.getCallID(); 
-						    	if ( y > 0 ) {
-							    	callID = "";
-							    }
+					    for (int x=0; x<calls.size(); x++) {
+											    PlivoCall[] callRequests = (PlivoCall[]) calls.get(x) ;
 											    
-						%>
+											    for(int y=0; y<callRequests.length; y++) {
+											    	PlivoCall call = callRequests[y];	
+											    	String callID = call.getCallID(); 
+											    	if ( y > 0 ) {
+												    	callID = "";
+												    }
+					%>
 							<TR>
-								<TD class=tableCellData><%= callID %></TD>
-								<TD class=tableCellData><%= new Date(call.getTimestamp()) %></TD>
+								<TD class=tableCellData><%=callID%></TD>
+								<TD class=tableCellData><%=new Date(call.getTimestamp())%></TD>
 								<TD class=tableCellData>
 									<%
-									  String status = "Not Started";
-									  switch ( call.getStatus() ) {
-									  	case CallRequest.STATUS_STARTED:
-									  	  status = "Ringing";
-									  	  break;
-									  	case CallRequest.STATUS_ACTIVE:
-									  	  status = "Answered";
-									  	  break;  
-									  	case CallRequest.STATUS_COMPLETED:
-									  	  status = "Completed";
-									  	  break;
-									  	default:
-									  	  status = "Unknown";
-									  	  break;    
-									  }
-									 %>
+									    String status = "Not Started";
+																		  switch ( call.getStatus() ) {
+																		  	case PlivoCall.STATUS_STARTED:
+																		  	  status = "Ringing";
+																		  	  break;
+																		  	case PlivoCall.STATUS_ACTIVE:
+																		  	  status = "Answered";
+																		  	  break;  
+																		  	case PlivoCall.STATUS_COMPLETED:
+																		  	  status = "Completed";
+																		  	  break;
+																		  	default:
+																		  	  status = "Unknown";
+																		  	  break;    
+																		  }
+									%>
 									<%=status%> 
 								</TD>
-								<TD class=tableCellData><%= call.getANI()==null?"":call.getANI() %></TD>
-								<TD class=tableCellData><%= call.getDNIS()==null?"":call.getDNIS() %></TD>
-								<TD class=tableCellData><%= call.getCallerName()==null?"":call.getCallerName() %></TD>
+								<TD class=tableCellData><%=call.getANI()==null?"":call.getANI()%></TD>
+								<TD class=tableCellData><%=call.getDNIS()==null?"":call.getDNIS()%></TD>
+								<TD class=tableCellData><%=call.getCallerName()==null?"":call.getCallerName()%></TD>
 								<TD class=tableCellData>
 									<%
-									  String direction = "Unknown";
-									  switch ( call.getDirection() ) {
-									  	case CallRequest.DIRECTION_INBOUND:
-									  	  direction = "Inbound";
-									  	  break;
-									  	case CallRequest.DIRECTION_OUTBOUND:
-									  	  direction = "Outbound";
-									  	  break;  
-									  	default:
-									  	  direction = "Unknown";
-									  	  break;    
-									  }
-									 %>
+									    String direction = "Unknown";
+																		  switch ( call.getDirection() ) {
+																		  	case PlivoCall.DIRECTION_INBOUND:
+																		  	  direction = "Inbound";
+																		  	  break;
+																		  	case PlivoCall.DIRECTION_OUTBOUND:
+																		  	  direction = "Outbound";
+																		  	  break;  
+																		  	default:
+																		  	  direction = "Unknown";
+																		  	  break;    
+																		  }
+									%>
 									<%=direction%> 
 								</TD>
 								<TD class=tableCellData>
 									<%
-									  String disposition = "";
-									  switch ( call.getDisposition() ) {
-									  	case CallRequest.DISPOSITION_CALLER_HANGUP:
-									  	  disposition = "Caller Hangup";
-									  	  break;
-									  	case CallRequest.DISPOSITION_CALLEE_HANGUP:
-									  	  disposition = "Callee Hangup";
-									  	  break;
-									  	case CallRequest.DISPOSITION_SYSTEM_HANGUP:
-									  	  disposition = "System Hangup";
-									  	  break;
-									  	case CallRequest.DISPOSITION_ERROR_HANGUP:
-									  	  disposition = "Error Hangup";
-									  	  break;  
-									  	default:
-									  	  disposition = "";
-									  	  break;    
-									  }
-									 %>
+									    String disposition = "";
+																		  switch ( call.getDisposition() ) {
+																		  	case PlivoCall.DISPOSITION_CALLER_HANGUP:
+																		  	  disposition = "Caller Hangup";
+																		  	  break;
+																		  	case PlivoCall.DISPOSITION_CALLEE_HANGUP:
+																		  	  disposition = "Callee Hangup";
+																		  	  break;
+																		  	case PlivoCall.DISPOSITION_SYSTEM_HANGUP:
+																		  	  disposition = "System Hangup";
+																		  	  break;
+																		  	case PlivoCall.DISPOSITION_ERROR_HANGUP:
+																		  	  disposition = "Error Hangup";
+																		  	  break;  
+																		  	default:
+																		  	  disposition = "";
+																		  	  break;    
+																		  }
+									%>
 									<%=disposition%> 
 								</TD>
 							</TR>

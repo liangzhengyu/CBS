@@ -1,6 +1,6 @@
 package com.callrite.cbs.exception;
 
-public class NoDatabaseException extends VIPException {
+public class NoDatabaseException extends CBSException {
     
     /**
      * 
